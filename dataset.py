@@ -69,6 +69,7 @@ class testset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         data = self.datas[index]
+        # 假設每行數據以 tab 區分影像與遮罩路徑。
         gt_name = data.split('\t')[0]
         mask_name = data.split('\t')[1]
         gt_img = Image.open(gt_name)
