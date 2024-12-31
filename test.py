@@ -23,6 +23,12 @@ args = parser.parse_args()
 
 def evaluate(model, dataset, device, path):
     num = len(dataset)
+
+    # 確保原始圖片資料夾存在
+    original_dir = "/content/Pytorch-MADF/original"
+    if not os.path.exists(original_dir):
+        os.makedirs(original_dir)
+        
     for i in range(num):
         image, mask, gt, name = zip(*[dataset[i]])
         image = torch.stack(image)
@@ -33,10 +39,21 @@ def evaluate(model, dataset, device, path):
         output = outputs[-1].to(torch.device('cpu'))
         output_comp = mask * image + (1 - mask) * output
 
+        # 修改測試圖片檔名並儲存到 original 資料夾
         name = name[0]
-        name = name.split("/")[-1].replace('.jpg', '.png')
-        save_image(unnormalize(output_comp), path + '/' + name)
-        save_image(unnormalize(gt), "gt_" + path + '/' + name)
+        result_name = f"{i:08d}.png"  # 統一命名格式，8位數編號
+        original_name = result_name.replace(".png", ".jpg")  # 原始圖片保持 .jpg 格式
+        original_path = os.path.join(original_dir, original_name)
+        save_image(unnormalize(image[0]), original_path)
+
+        # 儲存結果圖片
+        save_image(unnormalize(output_comp), path + '/' + result_name)
+        save_image(unnormalize(gt), "gt_" + path + '/' + result_name)
+        
+        # name = name[0]
+        # name = name.split("/")[-1].replace('.jpg', '.png')
+        # save_image(unnormalize(output_comp), path + '/' + name)
+        # save_image(unnormalize(gt), "gt_" + path + '/' + name)
 
 if __name__ == '__main__':
     device = torch.device('cuda')
