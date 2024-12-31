@@ -10,7 +10,6 @@ from torchvision.utils import save_image
 import PIL
 import opt
 import os
-import shutil
 
 parser = argparse.ArgumentParser()
 # training options
@@ -23,13 +22,7 @@ args = parser.parse_args()
 
 def evaluate(model, dataset, device, path):
     num = len(dataset)
-    counter = 1  # 計數器用於生成新檔名
     
-    # 確保原始圖片資料夾存在
-    original_dir = "./original"
-    if not os.path.exists(original_dir):
-        os.makedirs(original_dir)
-        
     for i in range(num):
         image, mask, gt, name = zip(*[dataset[i]])
         image = torch.stack(image)
@@ -40,26 +33,10 @@ def evaluate(model, dataset, device, path):
         output = outputs[-1].to(torch.device('cpu'))
         output_comp = mask * image + (1 - mask) * output
 
-        # 重新命名的邏輯
-        original_name = name[0]  # 獲取原始檔案的完整路徑
-        new_name = f"{counter:08d}.jpg"  # 生成八位數字的新檔名
-
-        # 複製並重新命名原始圖片到 ./original
-        shutil.copy(original_name, os.path.join(original_dir, new_name))
-        
-        # 儲存結果圖片，並使用相同邏輯命名
-        result_name = f"{counter:08d}.png"  # 使用對應的編號命名結果圖片
-        save_image(unnormalize(output_comp), os.path.join(path, result_name))
-        save_image(unnormalize(gt), os.path.join("gt_" + path, result_name))
-        
-        counter += 1
-        
-        """
         name = name[0]
         name = name.split("/")[-1].replace('.jpg', '.png')
         save_image(unnormalize(output_comp), path + '/' + name)
         save_image(unnormalize(gt), "gt_" + path + '/' + name)
-        """
 
 if __name__ == '__main__':
     device = torch.device('cuda')
