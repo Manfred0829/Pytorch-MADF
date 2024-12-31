@@ -25,7 +25,7 @@ def evaluate(model, dataset, device, path):
     num = len(dataset)
 
     # 確保原始圖片資料夾存在
-    original_dir = "/content/Pytorch-MADF/original"
+    original_dir = "./original"
     if not os.path.exists(original_dir):
         os.makedirs(original_dir)
         
