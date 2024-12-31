@@ -23,7 +23,8 @@ args = parser.parse_args()
 
 def evaluate(model, dataset, device, path):
     num = len(dataset)
-
+    counter = 1  # 計數器用於生成新檔名
+    
     # 確保原始圖片資料夾存在
     original_dir = "./original"
     if not os.path.exists(original_dir):
@@ -39,21 +40,29 @@ def evaluate(model, dataset, device, path):
         output = outputs[-1].to(torch.device('cpu'))
         output_comp = mask * image + (1 - mask) * output
 
-        # 修改測試圖片檔名並儲存到 original 資料夾
-        name = name[0]
-        result_name = f"{i:08d}.png"  # 統一命名格式，8位數編號
-        original_name = result_name.replace(".png", ".jpg")  # 原始圖片保持 .jpg 格式
-        original_path = os.path.join(original_dir, original_name)
-        save_image(unnormalize(image[0]), original_path)
+        # 重新命名的邏輯
+        original_name = name[0]  # 獲取原始檔案的完整路徑
+        new_name = f"{counter:08d}.jpg"  # 生成八位數字的新檔名
+        counter += 1
 
-        # 儲存結果圖片
-        save_image(unnormalize(output_comp), path + '/' + result_name)
-        save_image(unnormalize(gt), "gt_" + path + '/' + result_name)
+        # 複製並重新命名原始圖片到 ./original
+        shutil.copy(original_name, os.path.join(original_path, new_name))
         
+        # # 修改測試圖片檔名並儲存到 original 資料夾
         # name = name[0]
-        # name = name.split("/")[-1].replace('.jpg', '.png')
-        # save_image(unnormalize(output_comp), path + '/' + name)
-        # save_image(unnormalize(gt), "gt_" + path + '/' + name)
+        # result_name = f"{i:08d}.png"  # 統一命名格式，8位數編號
+        # original_name = result_name.replace(".png", ".jpg")  # 原始圖片保持 .jpg 格式
+        # original_path = os.path.join(original_dir, original_name)
+        # save_image(unnormalize(image[0]), original_path)
+
+        # # 儲存結果圖片
+        # save_image(unnormalize(output_comp), path + '/' + result_name)
+        # save_image(unnormalize(gt), "gt_" + path + '/' + result_name)
+        
+        name = name[0]
+        name = name.split("/")[-1].replace('.jpg', '.png')
+        save_image(unnormalize(output_comp), path + '/' + name)
+        save_image(unnormalize(gt), "gt_" + path + '/' + name)
 
 if __name__ == '__main__':
     device = torch.device('cuda')
