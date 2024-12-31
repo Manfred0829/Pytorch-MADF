@@ -46,7 +46,7 @@ def evaluate(model, dataset, device, path):
         counter += 1
 
         # 複製並重新命名原始圖片到 ./original
-        shutil.copy(original_name, os.path.join("./original", new_name))
+        shutil.copy(original_name, os.path.join(original_dir, new_name))
         
         # # 修改測試圖片檔名並儲存到 original 資料夾
         # name = name[0]
